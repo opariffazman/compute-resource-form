@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+</head>
+<title>Compute Resource Form</title>
+
+<body onload="initTable()">
+
+  <form>
+    <label for="project">project:</label>
+    <input type="text" id="project" name="project">
+    <label for="owner">owner:</label>
+    <input type="text" id="owner" name="owner">
+    <label for="environment">environment:</label>
+    <select name="environment" id="environment" onchange="setHo">
+      <option value="u">uat</option>
+      <option value="s">sit</option>
+      <option value="p">prod</option>
+    </select>
+  </form>
+
+  <p>
+    <input type="button" id="addRow" value="Add New Row" onclick="addRow()" />
+  </p>
+  <div id="cont"></div>
+  <!--the container to add the table.-->
+</body>
+
+<script>
+  let tableHead = new Array();
+  tableHead = ['', 'site', 'function', 'count', 'hostname', 'os', 'cpu', 'memory'];
+  let newRow = 0;
+
+  initTable = () => {
+    let crfTable = document.createElement('table');
+    crfTable.setAttribute('id', 'crfTable');
+
+    let tr = crfTable.insertRow(-1);
+
+    for (let h = 0; h < tableHead.length; h++) {
+      let th = document.createElement('th');
+      th.innerHTML = tableHead[h];
+      tr.appendChild(th);
+    }
+
+    let div = document.getElementById('cont');
+    div.appendChild(crfTable);
+  }
+
+  addRow = () => {
+    newRow = newRow + 1;
+    let crfTable = document.getElementById('crfTable');
+    let rowCount = crfTable.rows.length;
+    let tr = crfTable.insertRow(rowCount);
+
+    for (let i = 0; i < tableHead.length; i++) {
+      let td = document.createElement('td');
+      td = tr.insertCell(i);
+
+      switch (tableHead[i]) {
+        case '':
+          let button = document.createElement('input');
+          button.setAttribute('type', 'button');
+          button.setAttribute('value', 'Remove');
+          button.setAttribute('onclick', `removeRow(${newRow})`);
+          button.setAttribute('id', `row${newRow}`);
+          td.appendChild(button);
+          break;
+        case 'site':
+          let siteEl = document.createElement('select');
+          siteEl.setAttribute('id', 'site' + newRow);
+          siteEl.setAttribute('onchange', `setHostname(${newRow})`)
+          let siteArr = ['site1', 'site2'];
+          for (let i = 0; i < siteArr.length; i++) {
+            let option = document.createElement('option');
+            option.value = siteArr[i];
+            option.text = siteArr[i];
+            siteEl.appendChild(option);
+          }
+          td.appendChild(siteEl);
+          break;
+        case 'function':
+          let funcEl = document.createElement('input');
+          funcEl.setAttribute('type', 'text');
+          funcEl.setAttribute('value', '');
+          funcEl.setAttribute('oninput', `setHostname(${newRow})`);
+          funcEl.setAttribute('id', 'function' + newRow)
+          td.appendChild(funcEl);
+          break;
+        case 'count':
+          let countEl = document.createElement('input');
+          countEl.setAttribute('type', 'number');
+          countEl.setAttribute('value', '1');
+          countEl.setAttribute('min', '1');
+          countEl.setAttribute('step', '1');
+          countEl.setAttribute('onchange', `setHostname(${newRow})`)
+          countEl.setAttribute('id', 'count' + newRow)
+          td.appendChild(countEl);
+          break;
+        case 'hostname':
+          let hostEl = document.createElement('input');
+          hostEl.setAttribute('type', 'text');
+          hostEl.setAttribute('value', '');
+          hostEl.setAttribute('id', 'hostname' + newRow)
+          td.appendChild(hostEl);
+          break;
+        case 'os':
+          let osEl = document.createElement('select');
+          osEl.setAttribute('id', 'os' + newRow);
+          let osArr = ['linux', 'windows'];
+          for (let i = 0; i < osArr.length; i++) {
+            let option = document.createElement('option');
+            option.value = osArr[i];
+            option.text = osArr[i];
+            osEl.appendChild(option);
+          }
+          td.appendChild(osEl);
+          break;
+        case 'cpu':
+          let cpuEl = document.createElement('select');
+          cpuEl.setAttribute('id', 'cpu' + newRow);
+          let cpuArr = ['2', '4'];
+          for (let i = 0; i < cpuArr.length; i++) {
+            let option = document.createElement('option');
+            option.value = cpuArr[i];
+            option.text = cpuArr[i];
+            cpuEl.appendChild(option);
+          }
+          td.appendChild(cpuEl);
+          break;
+        case 'memory':
+          let memEl = document.createElement('select');
+          memEl.setAttribute('id', 'memory' + newRow);
+          let memArr = ['2', '4'];
+          for (let i = 0; i < memArr.length; i++) {
+            let option = document.createElement('option');
+            option.value = memArr[i];
+            option.text = memArr[i];
+            memEl.appendChild(option);
+          }
+          td.appendChild(memEl);
+          break;
+        default:
+          break;
+      }
+
+    }
+
+  }
+
+  removeRow = (id) => {
+    let crfTable = document.getElementById('crfTable');
+    let rowToRemove = document.getElementById(`row${id}`);
+    crfTable.deleteRow(rowToRemove.parentNode.parentNode.rowIndex); // buttton -> td -> tr
+  }
+
+  reorgRow = () => {
+    let rows = document.querySelectorAll('tr');
+
+    rows.forEach((row) => {
+      // let z = document.createElement("td");
+      // z.textContent = `(row #${row.rowIndex})`;
+      // row.appendChild(z);
+
+      console.log(row.cells[0].innerHTML);
+
+    });
+  }
+
+  field = (id) => document.getElementById(id).value;
+
+  setHostname = (id) => {
+    let num = field(`count${id}`) < 10 ? '0' + field(`count${id}`) : field(`count${id}`);
+    let x = 'v' + field(`site${id}`) + field('project') + field(`function${id}`) + num + field('environment');
+    document.getElementById(`hostname${id}`).setAttribute('value', x);
+  }
+</script>
+
+</html>

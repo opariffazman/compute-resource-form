@@ -28,12 +28,12 @@
   </p>
   <div id="cont"></div>
   <!--the container to add the table.-->
+  <input type="button" id="saveForm" value="Save Form" onclick="saveForm()" />
 </body>
 
 <script>
-  let tableHead = new Array();
-  tableHead = ['', 'site', 'function', 'count', 'hostname', 'os', 'cpu', 'memory'];
-  let newRow = 0;
+  let tableHead = new Array('', 'site', 'function', 'count', 'hostname', 'os', 'cpu', 'memory');
+  let rowIds = new Array();
 
   initTable = () => {
     let crfTable = document.createElement('table');
@@ -51,8 +51,10 @@
     div.appendChild(crfTable);
   }
 
+  let newRow = 0;
   addRow = () => {
     newRow = newRow + 1;
+    rowIds.push(newRow);
     let crfTable = document.getElementById('crfTable');
     let rowCount = crfTable.rows.length;
     let tr = crfTable.insertRow(rowCount);
@@ -74,7 +76,7 @@
           let siteEl = document.createElement('select');
           siteEl.setAttribute('id', 'site' + newRow);
           siteEl.setAttribute('onchange', `setHostname(${newRow})`)
-          let siteArr = ['site1', 'site2'];
+          let siteArr = ['cbj', 'bgr'];
           for (let i = 0; i < siteArr.length; i++) {
             let option = document.createElement('option');
             option.value = siteArr[i];
@@ -155,20 +157,49 @@
   removeRow = (id) => {
     let crfTable = document.getElementById('crfTable');
     let rowToRemove = document.getElementById(`row${id}`);
+    rowIds = rowIds.filter(item => item !== id);
     crfTable.deleteRow(rowToRemove.parentNode.parentNode.rowIndex); // buttton -> td -> tr
   }
 
-  reorgRow = () => {
-    let rows = document.querySelectorAll('tr');
+  let forms = [];
 
-    rows.forEach((row) => {
-      // let z = document.createElement("td");
-      // z.textContent = `(row #${row.rowIndex})`;
-      // row.appendChild(z);
+  saveForm = () => {
+    forms = [];
+    for (let index = 0; index < rowIds.length; index++) {
+      let form = {
+        "site": document.getElementById(`site${rowIds[index]}`).value,
+        "function": document.getElementById(`function${rowIds[index]}`).value,
+        "hostname": document.getElementById(`hostname${rowIds[index]}`).value,
+        "os": document.getElementById(`os${rowIds[index]}`).value,
+        "cpu": document.getElementById(`cpu${rowIds[index]}`).value,
+        "memory": document.getElementById(`memory${rowIds[index]}`).value,
+      };
 
-      console.log(row.cells[0].innerHTML);
+      forms.push(form);
+    }
 
-    });
+    // convert json to csv
+    const items = forms;
+    const replacer = (key, value) => value === null ? '' : value
+    const header = Object.keys(items[0])
+    const csv = [
+      header.join(','), // header row first
+      ...items.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
+    ].join('\r\n')
+
+    console.log(csv)
+
+    // download the converted csv
+    csvfile = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement('a');
+
+    link.download = "crf.csv";
+    const url = window.URL.createObjectURL(csvfile);
+    link.href = url;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   field = (id) => document.getElementById(id).value;
@@ -178,6 +209,7 @@
     let x = 'v' + field(`site${id}`) + field('project') + field(`function${id}`) + num + field('environment');
     document.getElementById(`hostname${id}`).setAttribute('value', x);
   }
+
 </script>
 
 </html>

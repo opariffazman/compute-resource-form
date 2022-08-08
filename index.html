@@ -32,7 +32,7 @@
 </body>
 
 <script>
-  let tableHead = new Array('', 'site', 'function', 'count', 'hostname', 'os', 'cpu', 'memory');
+  let tableHead = new Array('', 'site', 'function', 'count', 'hostname', 'os', 'cpu', 'memory', 'ip');
   let rowIds = new Array();
 
   initTable = () => {
@@ -146,6 +146,13 @@
           }
           td.appendChild(memEl);
           break;
+        case 'ip':
+          let ipEl = document.createElement('input');
+          ipEl.setAttribute('type', 'text');
+          ipEl.setAttribute('value', '');
+          ipEl.setAttribute('id', 'ip' + newRow)
+          td.appendChild(ipEl);
+          break;
         default:
           break;
       }
@@ -167,12 +174,16 @@
     forms = [];
     for (let index = 0; index < rowIds.length; index++) {
       let form = {
+        "project": document.getElementById('project').value,
+        "owner": document.getElementById('owner').value,
+        "environment": document.getElementById('environment').value,
         "site": document.getElementById(`site${rowIds[index]}`).value,
         "function": document.getElementById(`function${rowIds[index]}`).value,
         "hostname": document.getElementById(`hostname${rowIds[index]}`).value,
         "os": document.getElementById(`os${rowIds[index]}`).value,
         "cpu": document.getElementById(`cpu${rowIds[index]}`).value,
         "memory": document.getElementById(`memory${rowIds[index]}`).value,
+        "ip": document.getElementById(`ip${rowIds[index]}`).value,
       };
 
       forms.push(form);
